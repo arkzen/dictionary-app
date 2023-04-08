@@ -13,4 +13,7 @@
     <string name="txt_verb">verb</string>
     <string name="txt_adj">Adjective</string>
     <string name="txt_source">Source</string>
+    <string name="wlc_txt">Searching for a word in \n an analog dictionary \nhas never been so easy</string>
+    <string name="get_started">GET STARTED</string>
+    <string name="search_word">Search</string>
 </resources>

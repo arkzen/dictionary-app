@@ -1,24 +1,12 @@
-
 package studios.darkzen.dictionaryapp.service.model;
 
 import java.util.List;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
-public class Definition {
-
-    @SerializedName("definition")
-    @Expose
+public class Definitions {
     private String definition;
-    @SerializedName("synonyms")
-    @Expose
-    private List<String> synonyms;
-    @SerializedName("antonyms")
-    @Expose
-    private List<String> antonyms;
-    @SerializedName("example")
-    @Expose
     private String example;
+    private List<String> synonyms;
+    private List<String> antonyms;
 
     public String getDefinition() {
         return definition;
@@ -26,6 +14,14 @@ public class Definition {
 
     public void setDefinition(String definition) {
         this.definition = definition;
+    }
+
+    public String getExample() {
+        return example;
+    }
+
+    public void setExample(String example) {
+        this.example = example;
     }
 
     public List<String> getSynonyms() {
@@ -43,13 +39,4 @@ public class Definition {
     public void setAntonyms(List<String> antonyms) {
         this.antonyms = antonyms;
     }
-
-    public String getExample() {
-        return example;
-    }
-
-    public void setExample(String example) {
-        this.example = example;
-    }
-
 }

@@ -41,28 +41,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.65" />
+        app:layout_constraintGuide_percent="0.70" />
 
     <TextView
         android:id="@+id/tvAppbreif"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="20sp"
         android:fontFamily="@font/lato_light"
         android:gravity="center"
         android:text="@string/wlc_txt"
         android:textColor="@color/gray"
-        android:textSize="35sp"
-        app:layout_constraintBottom_toTopOf="@id/gl_txt_bottom"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="12sp"
+        app:autoSizeMaxTextSize="25sp"
+        app:layout_constraintBottom_toTopOf="@id/getstarted"
+        app:layout_constraintEnd_toEndOf="@id/gl_btn_end"
+        app:layout_constraintStart_toStartOf="@id/gl_btn_start"
         app:layout_constraintTop_toBottomOf="@id/gl_img_bottom" />
 
 
     <TextView
         android:id="@+id/getstarted"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:fontFamily="@font/lato_bold"
         android:text="@string/get_started"
         android:textSize="25sp"
@@ -110,14 +111,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_percent="0.15" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/gl_btn_end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.8" />
+        app:layout_constraintGuide_percent="0.85" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnSearch"

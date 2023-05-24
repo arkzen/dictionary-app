@@ -18,6 +18,8 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.example.dictionaryapp.R;
 
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
 
     private AppCompatButton btnSearch;
@@ -33,22 +35,13 @@ public class MainActivity extends AppCompatActivity {
         btnSearch = findViewById(R.id.btnSearch);
 
 
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnSearch.setOnClickListener(v -> SearchAction());
+        etWordSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 SearchAction();
+                return true;
             }
-        });
-
-        etWordSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    SearchAction();
-                    return true;
-                }
-                return false;
-            }
+            return false;
         });
 
     }
@@ -73,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Please enter any valid English word", Toast.LENGTH_SHORT).show();
         }
     }
+
 }
 
 

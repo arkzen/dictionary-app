@@ -16,4 +16,6 @@
     <string name="wlc_txt">Searching for a word in \n an analog dictionary \nhas never been so easy</string>
     <string name="get_started">GET STARTED</string>
     <string name="search_word">Search</string>
+    <string name="hello_word">Hello</string>
+    <string name="hello_phonetic">/həˈləʊ/</string>
 </resources>

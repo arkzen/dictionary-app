@@ -4,37 +4,40 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
+
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import studios.darkzen.dictionaryapp.service.model.Meanings;
-import studios.darkzen.dictionaryapp.service.model.Phonetics;
 import studios.darkzen.dictionaryapp.service.model.RootResponse;
 import studios.darkzen.dictionaryapp.service.network.ApiServices;
 import studios.darkzen.dictionaryapp.service.network.RetrofitInstanse;
 
-public class DictionaryRepo {
+public class DictionaryRepoImp implements DictionaryRepository {
 
-    private static DictionaryRepo instanse;
+    private static DictionaryRepoImp instanse;
     private static Context dContext;
-    private String word = "go";
     private RootResponse rootResponse;
-    private List<Meanings> meanings;
-    private List<Phonetics> phonetics;
+    private MutableLiveData mLivedata;
 
 
-    public static DictionaryRepo getInstanse(Context context) {
+    public static DictionaryRepoImp getInstanse(Context context) {
         if (instanse == null) {
             dContext = context;
-            instanse = new DictionaryRepo();
+            instanse = new DictionaryRepoImp();
 
         }
         return instanse;
     }
 
-    public RootResponse getApiResponse() {
+    public MutableLiveData getApiResponse(String word) {
+
+        if (mLivedata == null) {
+            mLivedata = new MutableLiveData();
+        }
 
         ApiServices apiServices = RetrofitInstanse.getRetrofitInstanse().create(ApiServices.class);
         Call<List<RootResponse>> call = apiServices.getDefinition(word);
@@ -42,7 +45,7 @@ public class DictionaryRepo {
         try {
             call.enqueue(new Callback<List<RootResponse>>() {
                 @Override
-                public void onResponse(Call<List<RootResponse>> call, Response<List<RootResponse>> response) {
+                public void onResponse(@NonNull Call<List<RootResponse>> call, @NonNull Response<List<RootResponse>> response) {
 
                     if (!response.isSuccessful()) {
                         Toast.makeText(dContext, "Error! Something is Wrong", Toast.LENGTH_SHORT).show();
@@ -51,10 +54,13 @@ public class DictionaryRepo {
                     assert response.body() != null;
                     rootResponse = response.body().get(0);
 
+                    mLivedata.postValue(rootResponse);
+
                 }
 
                 @Override
-                public void onFailure(Call<List<RootResponse>> call, Throwable t) {
+                public void onFailure(@NonNull Call<List<RootResponse>> call, @NonNull Throwable t) {
+                    Log.e("DictionaryRepo", "API call failed", t);
                     Toast.makeText(dContext, "An Error Occurred, Try Later!!", Toast.LENGTH_SHORT).show();
 
                 }
@@ -64,7 +70,7 @@ public class DictionaryRepo {
             Toast.makeText(dContext, "An Error Occurred, Try Later!!", Toast.LENGTH_SHORT).show();
 
         }
-        return rootResponse;
+        return mLivedata;
     }
 
 

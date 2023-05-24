@@ -6,6 +6,7 @@ public class RootResponse {
 
     private String word;
     private String origin;
+    private List<String> sourceUrls;
     private List<Phonetics> phonetics;
     private List<Meanings> meanings;
 
@@ -39,5 +40,13 @@ public class RootResponse {
 
     public void setMeanings(List<Meanings> meanings) {
         this.meanings = meanings;
+    }
+
+    public List<String> getSourceUrls() {
+        return sourceUrls;
+    }
+
+    public void setSourceUrls(List<String> sourceUrls) {
+        this.sourceUrls = sourceUrls;
     }
 }

@@ -28,6 +28,7 @@ import com.example.dictionaryapp.R;
 import java.io.IOException;
 import java.util.List;
 
+import studios.darkzen.dictionaryapp.service.callback.ProgressCallback;
 import studios.darkzen.dictionaryapp.service.model.Phonetics;
 import studios.darkzen.dictionaryapp.service.model.RootResponse;
 import studios.darkzen.dictionaryapp.view.adapter.MeaningAdapter;
@@ -91,8 +92,8 @@ public class Homepage extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent.hasExtra("SearchWord")) {
-           // progressDialog.setTitle("Searching meanings for word: " + word);
-           // progressDialog.show();
+            progressDialog.setTitle("Searching meanings for word: " + word);
+            progressDialog.show();
             word = intent.getStringExtra("SearchWord");
             if (!TextUtils.isEmpty(word)) {
                 try {
@@ -119,7 +120,17 @@ public class Homepage extends AppCompatActivity {
 
 
         DictionaryViewmodel dictionaryViewmodel = new ViewModelProvider(Homepage.this).get(DictionaryViewmodel.class);
-        dictionaryViewmodel.getApiResponse(word).observe(Homepage.this, new Observer<RootResponse>() {
+        dictionaryViewmodel.getApiResponse(word, new ProgressCallback() {
+            @Override
+            public void onDone(String message) {
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFail(String message) {
+               progressDialog.dismiss();
+            }
+        }).observe(Homepage.this, new Observer<RootResponse>() {
             @Override
             public void onChanged(RootResponse apiResponseData) {
 
@@ -217,7 +228,6 @@ public class Homepage extends AppCompatActivity {
                     sourceUrl.setText("");
                 }
 
-                progressDialog.dismiss();
             }
         });
     }

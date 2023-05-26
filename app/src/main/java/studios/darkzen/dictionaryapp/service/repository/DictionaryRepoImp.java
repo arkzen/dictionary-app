@@ -1,7 +1,6 @@
 package studios.darkzen.dictionaryapp.service.repository;
 
 import android.content.Context;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,6 +11,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import studios.darkzen.dictionaryapp.service.callback.ProgressCallback;
 import studios.darkzen.dictionaryapp.service.model.RootResponse;
 import studios.darkzen.dictionaryapp.service.network.ApiServices;
 import studios.darkzen.dictionaryapp.service.network.RetrofitInstanse;
@@ -33,7 +33,7 @@ public class DictionaryRepoImp implements DictionaryRepository {
         return instanse;
     }
 
-    public MutableLiveData getApiResponse(String word) {
+    public MutableLiveData getApiResponse(String word, ProgressCallback progressCallback) {
 
         if (mLivedata == null) {
             mLivedata = new MutableLiveData();
@@ -48,26 +48,28 @@ public class DictionaryRepoImp implements DictionaryRepository {
                 public void onResponse(@NonNull Call<List<RootResponse>> call, @NonNull Response<List<RootResponse>> response) {
 
                     if (!response.isSuccessful()) {
-                        Toast.makeText(dContext, "Error! Something is Wrong", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(dContext, "Word not found", Toast.LENGTH_SHORT).show();
+                        progressCallback.onFail(response.message());
                         return;
                     }
                     assert response.body() != null;
                     rootResponse = response.body().get(0);
 
                     mLivedata.postValue(rootResponse);
+                    progressCallback.onDone(response.message());
 
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<List<RootResponse>> call, @NonNull Throwable t) {
-                    Log.e("DictionaryRepo", "API call failed", t);
                     Toast.makeText(dContext, "An Error Occurred, Try Later!!", Toast.LENGTH_SHORT).show();
-
+                    progressCallback.onFail(t.getMessage());
                 }
             });
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(dContext, "An Error Occurred, Try Later!!", Toast.LENGTH_SHORT).show();
+            progressCallback.onFail(e.getMessage());
 
         }
         return mLivedata;

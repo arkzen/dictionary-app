@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
+import studios.darkzen.dictionaryapp.service.callback.ProgressCallback;
 import studios.darkzen.dictionaryapp.service.model.RootResponse;
 import studios.darkzen.dictionaryapp.service.repository.DictionaryRepoImp;
 import studios.darkzen.dictionaryapp.service.repository.DictionaryRepository;
@@ -19,7 +20,7 @@ public class DictionaryViewmodel extends AndroidViewModel {
 
         dRepo= DictionaryRepoImp.getInstanse(application);
     }
-    public MutableLiveData<RootResponse> getApiResponse(String word){
-       return dRepo.getApiResponse(word);
+    public MutableLiveData<RootResponse> getApiResponse(String word, ProgressCallback progressCallback){
+       return dRepo.getApiResponse(word,progressCallback);
     }
 }

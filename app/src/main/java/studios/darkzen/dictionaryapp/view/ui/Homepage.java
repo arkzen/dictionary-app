@@ -1,20 +1,23 @@
 package studios.darkzen.dictionaryapp.view.ui;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -25,6 +28,7 @@ import com.example.dictionaryapp.R;
 import java.io.IOException;
 import java.util.List;
 
+import studios.darkzen.dictionaryapp.service.callback.ProgressCallback;
 import studios.darkzen.dictionaryapp.service.model.Phonetics;
 import studios.darkzen.dictionaryapp.service.model.RootResponse;
 import studios.darkzen.dictionaryapp.view.adapter.MeaningAdapter;
@@ -36,8 +40,10 @@ public class Homepage extends AppCompatActivity {
     private MeaningAdapter meaningAdapter;
     private String word, phontxt;
     private RecyclerView rvMeaning;
+    private EditText etSearch;
+    private boolean isResume;
     private TextView tvWord, tvPhonetics, sourceUrl;
-    private ImageButton imbAudioplay;
+    private ImageButton imbAudioplay, btnSearch;
     private ProgressDialog progressDialog;
 
 
@@ -47,7 +53,8 @@ public class Homepage extends AppCompatActivity {
         setContentView(R.layout.activity_homepage);
 
 
-        SearchView svSearch = findViewById(R.id.etSearch);
+        etSearch = findViewById(R.id.etSearch);
+        btnSearch = findViewById(R.id.btnSearch);
         tvWord = findViewById(R.id.tvWord);
         tvPhonetics = findViewById(R.id.tvPhonetics);
         imbAudioplay = findViewById(R.id.btnAudioplay);
@@ -55,45 +62,29 @@ public class Homepage extends AppCompatActivity {
         sourceUrl = findViewById(R.id.tvSlink);
         progressDialog = new ProgressDialog(this);
 
-        svSearch.clearFocus();
-        svSearch.setFocusable(false);
-        svSearch.setOnClickListener(new View.OnClickListener() {
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                svSearch.setFocusable(true);
-                svSearch.setFocusableInTouchMode(true);
-                svSearch.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(svSearch, InputMethodManager.SHOW_IMPLICIT);
+                if (!etSearch.getText().toString().isEmpty()) {
+                    word = etSearch.getText().toString().trim();
+                    onSearch(word);
+                } else {
+                    Toast.makeText(Homepage.this, "Please enter a valid english word", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
-        svSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                progressDialog.setTitle("Searching meanings for word: " + word);
-                progressDialog.show();
-                try {
-                    if (!TextUtils.isEmpty(query)) {
-
-                        if (isConnected()) {
-                            setvalues(query);
-                        } else {
-                            progressDialog.dismiss();
-                            Toast.makeText(Homepage.this, "No internet, Try later", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(Homepage.this, "Please enter any valid English word", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (InterruptedException | IOException e) {
-                    e.printStackTrace();
-                    Toast.makeText(Homepage.this, "Error, Try later", Toast.LENGTH_SHORT).show();
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (!etSearch.getText().toString().isEmpty()) {
+                    word = etSearch.getText().toString().trim();
+                    onSearch(word);
+                } else {
+                    Toast.makeText(Homepage.this, "Please enter a valid english word", Toast.LENGTH_SHORT).show();
                 }
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
                 return false;
             }
         });
@@ -121,6 +112,7 @@ public class Homepage extends AppCompatActivity {
                 Toast.makeText(Homepage.this, "No search word provided", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
 
 
@@ -128,7 +120,17 @@ public class Homepage extends AppCompatActivity {
 
 
         DictionaryViewmodel dictionaryViewmodel = new ViewModelProvider(Homepage.this).get(DictionaryViewmodel.class);
-        dictionaryViewmodel.getApiResponse(word).observe(Homepage.this, new Observer<RootResponse>() {
+        dictionaryViewmodel.getApiResponse(word, new ProgressCallback() {
+            @Override
+            public void onDone(String message) {
+                progressDialog.dismiss();
+            }
+
+            @Override
+            public void onFail(String message) {
+               progressDialog.dismiss();
+            }
+        }).observe(Homepage.this, new Observer<RootResponse>() {
             @Override
             public void onChanged(RootResponse apiResponseData) {
 
@@ -141,19 +143,24 @@ public class Homepage extends AppCompatActivity {
                 if (!apiResponseData.getWord().isEmpty()) {
                     String searchword = apiResponseData.getWord();
                     tvWord.setText(searchword);
-
                 }
-                if (!apiResponseData.getPhonetics().isEmpty()) {
-                    if (apiResponseData.getPhonetics().get(0).getText() != null) {
-                        phontxt = apiResponseData.getPhonetics().get(0).getText();
-                        tvPhonetics.setText(phontxt);
-                    } else if (apiResponseData.getPhonetics().get(1).getText() != null) {
-                        phontxt = apiResponseData.getPhonetics().get(0).getText();
-                        tvPhonetics.setText(phontxt);
+
+                try {
+                    if (!apiResponseData.getPhonetics().isEmpty()) {
+                        if (apiResponseData.getPhonetics().get(0).getText() != null) {
+                            phontxt = apiResponseData.getPhonetics().get(0).getText();
+                            tvPhonetics.setText(phontxt);
+                        } else if (apiResponseData.getPhonetics().get(1).getText() != null) {
+                            phontxt = apiResponseData.getPhonetics().get(0).getText();
+                            tvPhonetics.setText(phontxt);
+                        } else {
+                            tvPhonetics.setText("");
+                        }
                     } else {
                         tvPhonetics.setText("");
                     }
-                } else {
+                } catch (Exception e) {
+                    e.printStackTrace();
                     tvPhonetics.setText("");
                 }
 
@@ -162,22 +169,44 @@ public class Homepage extends AppCompatActivity {
                     String phnAudioLink = null;
                     List<Phonetics> phonetics = apiResponseData.getPhonetics();
 
-                    if (!phonetics.isEmpty()) {
-                        phonetics.size();
-                        if (phonetics.get(0).getAudio() != null) {
-                            phnAudioLink = phonetics.get(0).getAudio();
-                        } else if (phonetics.size() > 1 && phonetics.get(1).getAudio() != null) {
-                            phnAudioLink = phonetics.get(1).getAudio();
+                    try {
+                        if (!phonetics.isEmpty()) {
+                            phonetics.size();
+                            if (phonetics.get(0).getAudio() != null && !phonetics.get(0).getAudio().isEmpty()) {
+                                phnAudioLink = phonetics.get(0).getAudio();
+                            } else if (phonetics.size() >= 1 && phonetics.get(1).getAudio() != null && !phonetics.get(1).getAudio().isEmpty()) {
+                                phnAudioLink = phonetics.get(1).getAudio();
+                            } else if (phonetics.size() >= 2 && phonetics.get(2).getAudio() != null && !phonetics.get(2).getAudio().isEmpty()) {
+                                phnAudioLink = phonetics.get(2).getAudio();
+                            } else {
+                                Toast.makeText(Homepage.this, "Couldn't play audio for this word", Toast.LENGTH_SHORT).show();
+                            }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(Homepage.this, "Couldn't play audio for this word", Toast.LENGTH_SHORT).show();
                     }
 
-                    if (phnAudioLink != null) {
+
+                    if (phnAudioLink != null && !phnAudioLink.isEmpty()) {
                         try {
-                            MediaPlayer player = new MediaPlayer();
-                            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                            player.setDataSource(phnAudioLink);
-                            player.prepare();
-                            player.start();
+                            if (!isResume) {
+                                isResume = true;
+                                imbAudioplay.setImageDrawable(ContextCompat.getDrawable(Homepage.this,R.drawable.ic_pause));
+                                MediaPlayer player = new MediaPlayer();
+                                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                                player.setDataSource(phnAudioLink);
+                                player.prepare();
+                                player.setOnCompletionListener(mp -> {
+                                    isResume = false;
+                                    imbAudioplay.setImageDrawable(ContextCompat.getDrawable(Homepage.this,R.drawable.ic_playbtn));
+                                });
+                                player.start();
+                            } else {
+                                isResume = false;
+                                imbAudioplay.setImageDrawable(ContextCompat.getDrawable(Homepage.this,R.drawable.ic_playbtn));
+                            }
+
                         } catch (IOException e) {
                             e.printStackTrace();
                             Toast.makeText(Homepage.this, "Couldn't play audio for this word", Toast.LENGTH_SHORT).show();
@@ -185,15 +214,20 @@ public class Homepage extends AppCompatActivity {
                     }
                 });
 
-                if (!apiResponseData.getSourceUrls().get(0).isEmpty()) {
-                    StringBuilder sourceurl = new StringBuilder();
-                    sourceurl.append(apiResponseData.getSourceUrls().get(0));
-                    sourceUrl.setText(sourceurl);
-                    sourceUrl.setSelected(true);
-                } else {
+                try {
+                    if (!apiResponseData.getSourceUrls().get(0).isEmpty()) {
+                        StringBuilder sourceurl = new StringBuilder();
+                        sourceurl.append(apiResponseData.getSourceUrls().get(0));
+                        sourceUrl.setText(sourceurl);
+                        sourceUrl.setSelected(true);
+                    } else {
+                        sourceUrl.setText("");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                     sourceUrl.setText("");
                 }
-                progressDialog.dismiss();
+
             }
         });
     }
@@ -201,6 +235,27 @@ public class Homepage extends AppCompatActivity {
     public boolean isConnected() throws InterruptedException, IOException {
         String command = "ping -c 1 dictionaryapi.dev";
         return Runtime.getRuntime().exec(command).waitFor() == 0;
+    }
+
+    public void onSearch(String word) {
+        progressDialog.setTitle("Searching meanings for word: " + word);
+        progressDialog.show();
+        try {
+            if (!TextUtils.isEmpty(word)) {
+
+                if (isConnected()) {
+                    setvalues(word);
+                } else {
+                    progressDialog.dismiss();
+                    Toast.makeText(Homepage.this, "No internet, Try later", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(Homepage.this, "Please enter any valid English word", Toast.LENGTH_SHORT).show();
+            }
+        } catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+            Toast.makeText(Homepage.this, "Error, Try later", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 

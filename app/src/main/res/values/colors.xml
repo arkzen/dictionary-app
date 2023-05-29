@@ -8,10 +8,25 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#8c8c8c</color>
+    <color name="white_gray">#f9f8fd</color>
     <color name="fuchsia_blue">#9257c2</color>
-    <color name="biloba_flower_blue">#DBC5EC</color>
+
     <color name="black_haze">#f4f5f5</color>
     <color name="xanadu_black">#747574</color>
     <color name="tundora_black">#424242</color>
     <color name="mineshaftblack">#212020</color>
+    <color name="mateblack">#181818</color>
+
+    <color name="searchbgcolor">#f4f5f5</color>
+    <color name="phoncircle">#DBC5EC</color>
+    <color name="boldword">#212020</color>
+    <color name="meaningnightxday">#424242</color>
+
+    <color name="ic_notfoundsad">#f4f5f5</color>
+    <color name="bg_notfoundtoast">#9257c2</color>
+    <color name="tvNotfound">#f4f5f5</color>
+
+    <color name="ic_errorcolor">#f4f5f5</color>
+    <color name="bg_errortoast">#b3271c</color>
+    <color name="tverror">#f4f5f5</color>
 </resources>

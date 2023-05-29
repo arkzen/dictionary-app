@@ -30,4 +30,7 @@
     <color name="bg_errortoast">#400f0b</color>
     <color name="tverror">#d4c2c0</color>
 
+    <color name="welctxtcolor">#f9f8fd</color>
+    <color name="searchtxtcolor">#8c8c8c</color>
+
 </resources>

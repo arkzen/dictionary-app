@@ -29,4 +29,7 @@
     <color name="ic_errorcolor">#f4f5f5</color>
     <color name="bg_errortoast">#b3271c</color>
     <color name="tverror">#f4f5f5</color>
+
+    <color name="welctxtcolor">#8c8c8c</color>
+    <color name="searchtxtcolor">#212020</color>
 </resources>

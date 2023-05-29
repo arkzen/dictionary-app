@@ -1,6 +1,7 @@
 package studios.darkzen.dictionaryapp.viewmodel;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -15,12 +16,14 @@ public class DictionaryViewmodel extends AndroidViewModel {
 
 
     private DictionaryRepository dRepo;
+
     public DictionaryViewmodel(@NonNull Application application) {
         super(application);
 
-        dRepo= DictionaryRepoImp.getInstanse(application);
+        dRepo = DictionaryRepoImp.getInstanse(application);
     }
-    public MutableLiveData<RootResponse> getApiResponse(String word, ProgressCallback progressCallback){
-       return dRepo.getApiResponse(word,progressCallback);
+
+    public MutableLiveData<RootResponse> getApiResponse(Context context, String word, ProgressCallback progressCallback) {
+        return dRepo.getApiResponse(context, word, progressCallback);
     }
 }

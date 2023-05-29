@@ -1,12 +1,18 @@
 package studios.darkzen.dictionaryapp.view.ui;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
+import android.text.Html;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,7 +23,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -32,6 +37,7 @@ import studios.darkzen.dictionaryapp.service.callback.ProgressCallback;
 import studios.darkzen.dictionaryapp.service.model.Phonetics;
 import studios.darkzen.dictionaryapp.service.model.RootResponse;
 import studios.darkzen.dictionaryapp.view.adapter.MeaningAdapter;
+import studios.darkzen.dictionaryapp.view.utils.ToastUtil;
 import studios.darkzen.dictionaryapp.viewmodel.DictionaryViewmodel;
 
 public class Homepage extends AppCompatActivity {
@@ -41,10 +47,12 @@ public class Homepage extends AppCompatActivity {
     private String word, phontxt;
     private RecyclerView rvMeaning;
     private EditText etSearch;
+    private Context context;
     private boolean isResume;
     private TextView tvWord, tvPhonetics, sourceUrl;
     private ImageButton imbAudioplay, btnSearch;
     private ProgressDialog progressDialog;
+
 
 
     @Override
@@ -52,7 +60,7 @@ public class Homepage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
 
-
+        context = Homepage.this;
         etSearch = findViewById(R.id.etSearch);
         btnSearch = findViewById(R.id.btnSearch);
         tvWord = findViewById(R.id.tvWord);
@@ -71,7 +79,8 @@ public class Homepage extends AppCompatActivity {
                     word = etSearch.getText().toString().trim();
                     onSearch(word);
                 } else {
-                    Toast.makeText(Homepage.this, "Please enter a valid english word", Toast.LENGTH_SHORT).show();
+                    Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_sad);
+                    ToastUtil.customShowToast(context, "Enter a word", icon);
                 }
             }
         });
@@ -83,7 +92,8 @@ public class Homepage extends AppCompatActivity {
                     word = etSearch.getText().toString().trim();
                     onSearch(word);
                 } else {
-                    Toast.makeText(Homepage.this, "Please enter a valid english word", Toast.LENGTH_SHORT).show();
+                    Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_sad);
+                    ToastUtil.customShowToast(context, "Enter a word", icon);
                 }
                 return false;
             }
@@ -92,35 +102,38 @@ public class Homepage extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent.hasExtra("SearchWord")) {
-            progressDialog.setTitle("Searching meanings for word: " + word);
-            progressDialog.show();
             word = intent.getStringExtra("SearchWord");
+            progressDialog.setTitle("Searching for : " + word);
+            progressDialog.show();
             if (!TextUtils.isEmpty(word)) {
                 try {
                     if (isConnected()) {
-                        setvalues(word);
+                        setvalues(context, word);
                     } else {
                         progressDialog.dismiss();
-                        Toast.makeText(Homepage.this, "No internet, Try later", Toast.LENGTH_SHORT).show();
+                        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_error);
+                        ToastUtil.customShowToast(context, "No Internet", icon);
                     }
                 } catch (InterruptedException | IOException e) {
                     e.printStackTrace();
-                    Toast.makeText(Homepage.this, "Error, Try later", Toast.LENGTH_SHORT).show();
+                    Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_sad);
+                    ToastUtil.customShowToast(context, "Not Found", icon);
                 }
 
             } else {
-                Toast.makeText(Homepage.this, "No search word provided", Toast.LENGTH_SHORT).show();
+                Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_error);
+                ToastUtil.customShowToast(context, "No word provided", icon);
             }
         }
 
     }
 
 
-    private void setvalues(String word) {
+    private void setvalues(Context context, String word) {
 
 
         DictionaryViewmodel dictionaryViewmodel = new ViewModelProvider(Homepage.this).get(DictionaryViewmodel.class);
-        dictionaryViewmodel.getApiResponse(word, new ProgressCallback() {
+        dictionaryViewmodel.getApiResponse(context, word, new ProgressCallback() {
             @Override
             public void onDone(String message) {
                 progressDialog.dismiss();
@@ -128,7 +141,7 @@ public class Homepage extends AppCompatActivity {
 
             @Override
             public void onFail(String message) {
-               progressDialog.dismiss();
+                progressDialog.dismiss();
             }
         }).observe(Homepage.this, new Observer<RootResponse>() {
             @Override
@@ -179,12 +192,14 @@ public class Homepage extends AppCompatActivity {
                             } else if (phonetics.size() >= 2 && phonetics.get(2).getAudio() != null && !phonetics.get(2).getAudio().isEmpty()) {
                                 phnAudioLink = phonetics.get(2).getAudio();
                             } else {
-                                Toast.makeText(Homepage.this, "Couldn't play audio for this word", Toast.LENGTH_SHORT).show();
+                                Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_sad);
+                                ToastUtil.customShowToast(context, "Couldn't play audio", icon);
                             }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(Homepage.this, "Couldn't play audio for this word", Toast.LENGTH_SHORT).show();
+                        Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_sad);
+                        ToastUtil.customShowToast(context, "Couldn't play audio", icon);
                     }
 
 
@@ -209,7 +224,8 @@ public class Homepage extends AppCompatActivity {
 
                         } catch (IOException e) {
                             e.printStackTrace();
-                            Toast.makeText(Homepage.this, "Couldn't play audio for this word", Toast.LENGTH_SHORT).show();
+                            Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_sad);
+                            ToastUtil.customShowToast(context, "Couldn't play audio", icon);
                         }
                     }
                 });
@@ -218,8 +234,12 @@ public class Homepage extends AppCompatActivity {
                     if (!apiResponseData.getSourceUrls().get(0).isEmpty()) {
                         StringBuilder sourceurl = new StringBuilder();
                         sourceurl.append(apiResponseData.getSourceUrls().get(0));
-                        sourceUrl.setText(sourceurl);
-                        sourceUrl.setSelected(true);
+                        String hyperlinkText = "<a href=\"" + sourceurl + "\">" + sourceurl + "</a>";
+                        SpannableString spannableString = new SpannableString(Html.fromHtml(hyperlinkText));
+                        spannableString.setSpan(new ForegroundColorSpan(Color.GRAY), 0, spannableString.length(), 0);
+
+                        sourceUrl.setText(spannableString);
+                        sourceUrl.setMovementMethod(LinkMovementMethod.getInstance());
                     } else {
                         sourceUrl.setText("");
                     }
@@ -238,23 +258,26 @@ public class Homepage extends AppCompatActivity {
     }
 
     public void onSearch(String word) {
-        progressDialog.setTitle("Searching meanings for word: " + word);
+        progressDialog.setTitle("Searching for: " + word);
         progressDialog.show();
         try {
             if (!TextUtils.isEmpty(word)) {
 
                 if (isConnected()) {
-                    setvalues(word);
+                    setvalues(context, word);
                 } else {
                     progressDialog.dismiss();
-                    Toast.makeText(Homepage.this, "No internet, Try later", Toast.LENGTH_SHORT).show();
+                    Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_sad);
+                    ToastUtil.customShowToast(context, "No Internet", icon);
+
                 }
             } else {
-                Toast.makeText(Homepage.this, "Please enter any valid English word", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Homepage.this, "Enter a word", Toast.LENGTH_SHORT).show();
             }
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
-            Toast.makeText(Homepage.this, "Error, Try later", Toast.LENGTH_SHORT).show();
+            Drawable icon = ContextCompat.getDrawable(context, R.drawable.ic_sad);
+            ToastUtil.customShowToast(context, "Not Found", icon);
         }
     }
 }

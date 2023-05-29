@@ -17,19 +17,20 @@
     <color name="mineshaftblack">#212020</color>
     <color name="mateblack">#181818</color>
 
-    <color name="searchbgcolor">#f4f5f5</color>
-    <color name="phoncircle">#DBC5EC</color>
-    <color name="boldword">#212020</color>
-    <color name="meaningnightxday">#424242</color>
+    <color name="searchbgcolor">#181818</color>
+    <color name="phoncircle">#2d1540</color>
+    <color name="boldword">#f9f8fd</color>
+    <color name="meaningnightxday">#f9f8fd</color>
 
-    <color name="ic_notfoundsad">#f4f5f5</color>
-    <color name="bg_notfoundtoast">#9257c2</color>
-    <color name="tvNotfound">#f4f5f5</color>
+    <color name="ic_notfoundsad">#8c8c8c</color>
+    <color name="bg_notfoundtoast">#2d1540</color>
+    <color name="tvNotfound">#8c8c8c</color>
 
-    <color name="ic_errorcolor">#f4f5f5</color>
-    <color name="bg_errortoast">#b3271c</color>
-    <color name="tverror">#f4f5f5</color>
+    <color name="ic_errorcolor">#d4c2c0</color>
+    <color name="bg_errortoast">#400f0b</color>
+    <color name="tverror">#d4c2c0</color>
 
-    <color name="welctxtcolor">#8c8c8c</color>
-    <color name="searchtxtcolor">#212020</color>
+    <color name="welctxtcolor">#f9f8fd</color>
+    <color name="searchtxtcolor">#8c8c8c</color>
+
 </resources>

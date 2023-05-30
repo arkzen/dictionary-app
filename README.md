@@ -3,6 +3,8 @@ A dictionary application for searching English word meanings and phonetics with 
 
 [![wordsense](https://asikur-android-projects.s3.ap-southeast-2.amazonaws.com/dictionaryapp/logo/apkdownloadbutton.png)](https://asikur-android-projects.s3.ap-southeast-2.amazonaws.com/dictionaryapp/apk/wordsensev01.apk)
 
+<img src="https://asikur-android-projects.s3.ap-southeast-2.amazonaws.com/dictionaryapp/ss/appssdark.jpg" width="960">
+
 ## Architecture Overview
 ![](https://asikur-android-projects.s3.ap-southeast-2.amazonaws.com/dictionaryapp/flow/architecture+overview.png)
 
